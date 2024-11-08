@@ -123,8 +123,23 @@ def calcular_ruta(establecimiento):
     print(camino_javier)
     print(camino_andreina)
 
+def add_stablishment(stablishment_name, cords): 
+    establecimientos[stablishment_name] = cords
+    print("Establecimiento agregado correctamente")
+
+def remove_stablishment(stablishment_name): 
+    if stablishment_name in establecimientos:
+        establecimientos.pop(stablishment_name)
+        print("Establecimiento eliminado correctamente")
+    else:
+        print("El establecimiento no se encunetra reghistrado")
+
 # Ejemplo de uso
 
 calcular_ruta("La Pasion")
+add_stablishment("Modo", (50,10))
+print("hola")
+remove_stablishment("Modo")
+print("hola")
 # grafo = construir_grafo("Javier")
 # print(grafo)
