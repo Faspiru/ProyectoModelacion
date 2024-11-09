@@ -1,68 +1,7 @@
 import heapq
-
-## A continuacion se definen variables constantes para todo el programa segun el enunciado del proyecto
-
-# Define los tiempos que tardan Javier y Andreína por recorrer una cuadra
-TIEMPO_JAVIER = {'normal': 4, 'mala_acera': 6, 'calle_comercial': 8}
-TIEMPO_ANDREINA = {'normal': 6, 'mala_acera': 8, 'calle_comercial': 10}
-
-# Coordenadas de cada punto relevante
-CASA_JAVIER = (54, 14)
-CASA_ANDREINA = (52, 13)
-establecimientos = {
-    "The Darkness": (50, 14),
-    "La Pasion": (54, 11),
-    "Mi Rolita": (50, 12)
-}
-
-# Limites de la cuadrícula
-LIMITE_NORTE = 55
-LIMITE_SUR = 50
-LIMITE_ESTE = 10
-LIMITE_OESTE = 15
-
-# Función para definir el tiempo de recorrido entre cuadras, considerando dirección del movimiento
-def obtener_tiempo(origen, destino, persona):
-    calle_origen, carrera_origen = origen
-    calle_destino, carrera_destino = destino
-    
-    # Determinamos si el movimiento es en sentido vertical (carrera) o horizontal (calle)
-    if calle_origen == calle_destino:
-        # Movimiento en sentido de calle (Este-Oeste o Oeste-Este)
-        if calle_origen == 51 or calle_destino == 51:
-            # Si cualquiera de las dos calles es la comercial
-            return TIEMPO_JAVIER['calle_comercial'] if persona == 'Javier' else TIEMPO_ANDREINA['calle_comercial']
-        else:
-            # Calle sin condición especial
-            return TIEMPO_JAVIER['normal'] if persona == 'Javier' else TIEMPO_ANDREINA['normal']
-        
-    
-    elif carrera_origen == carrera_destino:
-        # Movimiento en sentido de carrera (Norte-Sur o Sur-Norte)
-        if carrera_origen in {12, 13, 14} or carrera_destino in {12, 13, 14}:
-            # Si cualquiera de las dos carreras es "mala acera"
-            return TIEMPO_JAVIER['mala_acera'] if persona == 'Javier' else TIEMPO_ANDREINA['mala_acera']
-        else:
-            # Carrera sin condición especial
-            return TIEMPO_JAVIER['normal'] if persona == 'Javier' else TIEMPO_ANDREINA['normal']
-
-# Construcción del grafo como diccionario de adyacencia
-def construir_grafo(persona):
-    grafo = {}
-    for calle in range(LIMITE_SUR, LIMITE_NORTE + 1):
-        for carrera in range(LIMITE_ESTE, LIMITE_OESTE + 1):
-            nodo = (calle, carrera)
-            grafo[nodo] = []
-            vecinos = [
-                (calle + 1, carrera), (calle - 1, carrera),  # arriba y abajo
-                (calle, carrera + 1), (calle, carrera - 1)   # derecha e izquierda
-            ]
-            
-            for vecino in vecinos:
-                if (LIMITE_SUR <= vecino[0] <= LIMITE_NORTE and LIMITE_ESTE <= vecino[1] <= LIMITE_OESTE):
-                    tiempo = obtener_tiempo(nodo, vecino, persona)
-                    grafo[nodo].append((vecino, tiempo))
-    return grafo
+from Person import Person
+from Stablishment import Stablishment
+from Cuadricula import Cuadricula
 
 def dijkstra(grafo, origen, destino):
     # Inicialización de la distancia y el predecesor
@@ -98,48 +37,106 @@ def dijkstra(grafo, origen, destino):
     return distancia[destino], camino
 
 # Encuentra las rutas óptimas y sincroniza las salidas
-def calcular_ruta(establecimiento):
-    destino = establecimientos[establecimiento]
+def calcular_ruta(stablishment_name, stablishments, cuadricula, javier, andreina):
+    destino = None
+    establecimiento = None
+    for stablishment in stablishments:
+        if stablishment.name == stablishment_name:
+            destino = stablishment.coords
+            establecimiento = stablishment
     
-    grafo_javier = construir_grafo('Javier')
-    grafo_andreina = construir_grafo('Andreina')
-    
-    tiempo_javier, camino_javier = dijkstra(grafo_javier, CASA_JAVIER, destino)
-    tiempo_andreina, camino_andreina = dijkstra(grafo_andreina, CASA_ANDREINA, destino)
-    
-    if tiempo_javier == tiempo_andreina:
-        print(f"Ambos pueden salir al mismo tiempo y llegarán juntos en {tiempo_javier} minutos.")
-    elif tiempo_javier < tiempo_andreina:
-        diferencia = tiempo_andreina - tiempo_javier
-        print(f"Andreina debe salir {diferencia} minutos antes que Javier para que lleguen a {establecimiento} al mismo tiempo")
-        # print(f"Javier debe salir primero y esperar {diferencia} minutos para que Andreína llegue al mismo tiempo.")
-        print(f"Tiempo total de Javier: {tiempo_javier} minutos, Tiempo total de Andreína: {tiempo_andreina} minutos.")
+    if destino == None:
+        print("El establecimiento no esta registrado en la ciudad de Bogota")
     else:
-        diferencia = tiempo_javier - tiempo_andreina
-        print(f"Javier debe salir {diferencia} minutos antes que Andreina para que lleguen a {establecimiento} al mismo tiempo")
-        # print(f"Andreína debe salir primero y esperar {diferencia} minutos para que Javier llegue al mismo tiempo.")
-        print(f"Tiempo total de Javier: {tiempo_javier} minutos, Tiempo total de Andreína: {tiempo_andreina} minutos.")
+        grafo_javier = cuadricula.construir_grafo(javier)
+        grafo_andreina = cuadricula.construir_grafo(andreina)
 
-    print(camino_javier)
-    print(camino_andreina)
+        print(grafo_javier)
+        
+        tiempo_javier, camino_javier = dijkstra(grafo_javier, javier.home_coords, destino)
+        tiempo_andreina, camino_andreina = dijkstra(grafo_andreina, andreina.home_coords, destino)
+        
+        if tiempo_javier == tiempo_andreina:
+            print(f"Ambos pueden salir al mismo tiempo y llegarán juntos en {tiempo_javier} minutos.")
+        elif tiempo_javier < tiempo_andreina:
+            diferencia = tiempo_andreina - tiempo_javier
+            print(f"Andreina debe salir {diferencia} minutos antes que Javier para que lleguen a {establecimiento.name} al mismo tiempo")
+            # print(f"Javier debe salir primero y esperar {diferencia} minutos para que Andreína llegue al mismo tiempo.")
+            print(f"Tiempo total de Javier: {tiempo_javier} minutos, Tiempo total de Andreína: {tiempo_andreina} minutos.")
+        else:
+            diferencia = tiempo_javier - tiempo_andreina
+            print(f"Javier debe salir {diferencia} minutos antes que Andreina para que lleguen a {establecimiento.name} al mismo tiempo")
+            # print(f"Andreína debe salir primero y esperar {diferencia} minutos para que Javier llegue al mismo tiempo.")
+            print(f"Tiempo total de Javier: {tiempo_javier} minutos, Tiempo total de Andreína: {tiempo_andreina} minutos.")
 
-def add_stablishment(stablishment_name, cords): 
-    establecimientos[stablishment_name] = cords
-    print("Establecimiento agregado correctamente")
+        print(camino_javier)
+        print(camino_andreina)
 
-def remove_stablishment(stablishment_name): 
-    if stablishment_name in establecimientos:
-        establecimientos.pop(stablishment_name)
-        print("Establecimiento eliminado correctamente")
+def add_stablishment(stablishment_name, coords, stablishments, cuadricula):
+    x, y = coords
+    # Verificar si las coordenadas están dentro de los límites de la cuadrícula
+    if (cuadricula.limite_sur <= x <= cuadricula.limite_norte and
+        cuadricula.limite_este <= y <= cuadricula.limite_oeste):
+        
+        new_stablishment = Stablishment(stablishment_name, coords)
+        stablishments.append(new_stablishment)
+        print(f"Establecimiento '{stablishment_name}' agregado en {coords}")
     else:
-        print("El establecimiento no se encunetra reghistrado")
+        print(f"Error: Las coordenadas {coords} están fuera de los límites de la cuadrícula. No se puede agregar el establecimiento")
 
-# Ejemplo de uso
+def remove_stablishment(stablishment_name, stablishments):
+    establecimiento = None
+    for stablishment in stablishments:
+        if stablishment.name == stablishment_name:
+            establecimiento = stablishment
+    
+    if establecimiento == None:
+        print("No se ha encontrado el establecimiento a eliminar")
+    else:
+        stablishments.remove(establecimiento)
+        
+def add_carrera(cuadricula):
+    cuadricula.add_carrera()
 
-calcular_ruta("La Pasion")
-add_stablishment("Modo", (50,10))
-print("hola")
-remove_stablishment("Modo")
-print("hola")
-# grafo = construir_grafo("Javier")
-# print(grafo)
+def add_calle(cuadricula):
+    cuadricula.add_calle()
+
+def remove_carrera(cuadricula):
+    cuadricula.remove_carrera()
+
+def remove_calle(cuadricula):
+    cuadricula.remove_calle()
+
+def main():
+    persons = []
+    stablishments = []
+    ## Creamos a Javier y Andreina
+    javier = Person("Javier", 4, 6, 8, (54, 14))
+    andreina = Person("Andreina", 6, 8, 10, (52, 13))
+    persons.append(javier)
+    persons.append(andreina)
+
+    ## Creamos los establecimientos iniciales
+    the_darkness = Stablishment("The Darkness", (50, 14))
+    la_pasion = Stablishment("La Pasion", (54, 11))
+    mi_rolita = Stablishment("Mi Rolita", (50, 12))
+    stablishments.append(the_darkness)
+    stablishments.append(la_pasion)
+    stablishments.append(mi_rolita)
+
+    ## Creamos la cuadricula
+    cuadricula = Cuadricula(55, 50, 10, 15)
+
+    ## Pruebas
+    add_calle(cuadricula)
+    add_calle(cuadricula)
+    add_carrera(cuadricula)
+    remove_calle(cuadricula)
+
+    calcular_ruta("The Darkness", stablishments, cuadricula, javier, andreina)
+    add_stablishment("Mi Gafita", (57, 12), stablishments, cuadricula)
+    print("Hola")
+
+    return 
+
+main()
