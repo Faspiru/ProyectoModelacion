@@ -1,4 +1,5 @@
 import heapq
+from tkinter import *
 from Person import Person
 from Stablishment import Stablishment
 from Cuadricula import Cuadricula
@@ -107,6 +108,82 @@ def remove_carrera(cuadricula):
 def remove_calle(cuadricula):
     cuadricula.remove_calle()
 
+# Función para dibujar el mapa en la cuadrícula, incluyendo las calles, carreras y pesos
+def dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments):
+    # Ajustes del mapa
+    tam_punto = 5  # Tamaño del punto en la cuadrícula
+    escala = 50  # Escala para el tamaño de la cuadrícula en píxeles
+    offset_x, offset_y = 50, 50  # Desplazamiento para centrar la cuadrícula en el canvas
+
+    # Dibujar la cuadrícula de intersecciones y líneas de calles/carreras
+    for calle in range(cuadricula.limite_sur, cuadricula.limite_norte + 1):
+        for carrera in range(cuadricula.limite_este, cuadricula.limite_oeste + 1):
+            x = offset_x + (carrera - cuadricula.limite_este) * escala
+            y = offset_y + (cuadricula.limite_norte - calle) * escala
+
+            # Dibujar el punto de intersección
+            canvas.create_oval(x - tam_punto, y - tam_punto, x + tam_punto, y + tam_punto, fill="blue")
+
+            # Etiquetas especiales
+            if (calle, carrera) == javier.home_coords:
+                canvas.create_text(x, y - 15, text="J", fill="red", font=("Arial", 10, "bold"))
+            elif (calle, carrera) == andreina.home_coords:
+                canvas.create_text(x, y - 15, text="A", fill="red", font=("Arial", 10, "bold"))
+
+            # Etiquetar establecimientos
+            for stablishment in stablishments:
+                if stablishment.coords == (calle, carrera):
+                    canvas.create_text(x, y + 15, text=stablishment.name, fill="green", font=("Arial", 10, "bold"))
+
+            grafo = cuadricula.construir_grafo(andreina)
+            # Dibujar las conexiones con pesos entre intersecciones (calles y carreras)
+            if (calle, carrera + 1) in grafo[(calle, carrera)]:  # Conexión hacia la derecha
+                x_dest = offset_x + (carrera + 1 - cuadricula.limite_este) * escala
+                y_dest = y
+                peso = grafo[(calle, carrera)][(calle, carrera + 1)]
+                canvas.create_line(x, y, x_dest, y_dest, fill="gray")
+                canvas.create_text((x + x_dest) / 2, y - 10, text=str(peso), fill="black", font=("Arial", 8))
+
+            if (calle + 1, carrera) in grafo[(calle, carrera)]:  # Conexión hacia abajo
+                x_dest = x
+                y_dest = offset_y + (cuadricula.limite_norte - (calle + 1)) * escala
+                peso = grafo[(calle, carrera)][(calle + 1, carrera)]
+                canvas.create_line(x, y, x_dest, y_dest, fill="gray")
+                canvas.create_text(x - 10, (y + y_dest) / 2, text=str(peso), fill="black", font=("Arial", 8))
+
+def init_app(cuadricula, javier, andreina, stablishments):
+    # Configuración de la ventana de Tkinter
+    ventana = Tk()
+    ventana.title("Mapa de la Ciudad")
+    ventana.geometry("800x450")
+
+    # Crear un frame para los botones
+    marco = Frame(ventana)
+    marco.pack(side=LEFT, padx=50, pady=10)
+
+    # Botones
+    btn_agregar_calle = Button(marco, text="Agregar calle", command=add_calle)
+    btn_agregar_calle.pack(fill=X, pady=5)
+
+    btn_agregar_carrera = Button(marco, text="Agregar carrera", command=add_carrera)
+    btn_agregar_carrera.pack(fill=X, pady=5)
+
+    btn_eliminar_calle = Button(marco, text="Eliminar calle", command=remove_calle)
+    btn_eliminar_calle.pack(fill=X, pady=5)
+
+    btn_eliminar_carrera = Button(marco, text="Eliminar carrera", command=remove_carrera)
+    btn_eliminar_carrera.pack(fill=X, pady=5)
+
+    # Crear canvas para el mapa
+    canvas = Canvas(ventana, width=600, height=600)
+    canvas.pack(side=RIGHT, padx=50, pady=20)
+
+    # Dibujar el mapa al iniciar
+    dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments)
+
+    # Con este comando arranca la interfaz
+    ventana.mainloop()
+
 def main():
     persons = []
     stablishments = []
@@ -127,7 +204,7 @@ def main():
     ## Creamos la cuadricula
     cuadricula = Cuadricula(55, 50, 10, 15)
 
-    ## Pruebas
+    '''## Pruebas
     add_calle(cuadricula)
     add_calle(cuadricula)
     add_carrera(cuadricula)
@@ -135,8 +212,10 @@ def main():
 
     calcular_ruta("The Darkness", stablishments, cuadricula, javier, andreina)
     add_stablishment("Mi Gafita", (57, 12), stablishments, cuadricula)
-    print("Hola")
+    print("Hola")'''
 
+    init_app(cuadricula, javier, andreina, stablishments)
+    
     return 
 
 main()
