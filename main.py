@@ -1,5 +1,7 @@
 import heapq
 from tkinter import *
+from tkinter import ttk
+from tkinter import messagebox
 from Person import Person
 from Stablishment import Stablishment
 from Cuadricula import Cuadricula
@@ -47,31 +49,33 @@ def calcular_ruta(stablishment_name, stablishments, cuadricula, javier, andreina
             establecimiento = stablishment
     
     if destino == None:
-        print("El establecimiento no esta registrado en la ciudad de Bogota")
+        messagebox.showwarning("Advertencia", "El establecimiento no está registrado en la ciudad de Bogotá")
     else:
         grafo_javier = cuadricula.construir_grafo(javier)
         grafo_andreina = cuadricula.construir_grafo(andreina)
 
-        print(grafo_javier)
+        # print(grafo_javier)
         
         tiempo_javier, camino_javier = dijkstra(grafo_javier, javier.home_coords, destino)
         tiempo_andreina, camino_andreina = dijkstra(grafo_andreina, andreina.home_coords, destino)
         
         if tiempo_javier == tiempo_andreina:
-            print(f"Ambos pueden salir al mismo tiempo y llegarán juntos en {tiempo_javier} minutos.")
+            messagebox.showinfo("Resultados", f"Ambos pueden salir al mismo tiempo y llegarán juntos en {tiempo_javier} minutos.\n\nCamino que debe recorrer Javier: {camino_javier}\nCamino que debe recorrer Andreína: {camino_andreina}")
         elif tiempo_javier < tiempo_andreina:
             diferencia = tiempo_andreina - tiempo_javier
-            print(f"Andreina debe salir {diferencia} minutos antes que Javier para que lleguen a {establecimiento.name} al mismo tiempo")
+            messagebox.showinfo("Resultados", f"Andreina debe salir {diferencia} minutos antes que Javier para que lleguen a {establecimiento.name} al mismo tiempo\n\nTiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.\n\nCamino que debe recorrer Javier: {camino_javier}\nCamino que debe recorrer Andreína: {camino_andreina}")
             # print(f"Javier debe salir primero y esperar {diferencia} minutos para que Andreína llegue al mismo tiempo.")
-            print(f"Tiempo total de Javier: {tiempo_javier} minutos, Tiempo total de Andreína: {tiempo_andreina} minutos.")
+            # messagebox.showinfo("Resultados", f"Tiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.")
         else:
             diferencia = tiempo_javier - tiempo_andreina
-            print(f"Javier debe salir {diferencia} minutos antes que Andreina para que lleguen a {establecimiento.name} al mismo tiempo")
+            messagebox.showinfo("Resultados", f"Javier debe salir {diferencia} minutos antes que Andreina para que lleguen a {establecimiento.name} al mismo tiempo\n\nTiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.\n\nCamino que debe recorrer Javier: {camino_javier}\nCamino que debe recorrer Andreína: {camino_andreina}")
+            # print(f"Javier debe salir {diferencia} minutos antes que Andreina para que lleguen a {establecimiento.name} al mismo tiempo\nTiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.")
             # print(f"Andreína debe salir primero y esperar {diferencia} minutos para que Javier llegue al mismo tiempo.")
-            print(f"Tiempo total de Javier: {tiempo_javier} minutos, Tiempo total de Andreína: {tiempo_andreina} minutos.")
+            # messagebox.showinfo("Resultados", f"Tiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.")
+            # print(f"Tiempo total de Javier: {tiempo_javier} minutos, Tiempo total de Andreína: {tiempo_andreina} minutos.")
 
-        print(camino_javier)
-        print(camino_andreina)
+        #print(camino_javier)
+        #print(camino_andreina)
 
 def add_stablishment(stablishment_name, coords, stablishments, cuadricula):
     x, y = coords
@@ -174,17 +178,41 @@ def remove_calle_and_update(canvas, cuadricula, javier, andreina, stablishments)
     remove_calle(cuadricula)
     update_map(canvas, cuadricula, javier, andreina, stablishments)
 
+# Lista desplegable de establecimientos
+def update_stablishment_combobox(combobox, stablishments):
+    combobox['values'] = [stablishment.name for stablishment in stablishments]
+    if stablishments:
+        combobox.current(0)  # Seleccionar el primer establecimiento por defecto
+
+def add_stablishment_and_update(combobox, stablishment_name, coords, stablishments, cuadricula):
+    add_stablishment(stablishment_name, coords, stablishments, cuadricula)
+    update_stablishment_combobox(combobox, stablishments)
+
+def remove_stablishment_and_update(combobox, stablishment_name, stablishments):
+    remove_stablishment(stablishment_name, stablishments)
+    update_stablishment_combobox(combobox, stablishments)
+
 def init_app(cuadricula, javier, andreina, stablishments):
     # Configuración de la ventana de Tkinter
     ventana = Tk()
     ventana.title("Mapa de la Ciudad")
-    ventana.geometry("800x450")
+    ventana.geometry("950x500")
 
     # Crear un frame para los botones
     marco = Frame(ventana)
     marco.pack(side=LEFT, padx=80, pady=10)
 
+    # Crear un combobox para los establecimientos
+    combobox = ttk.Combobox(marco, width=25)
+    combobox.pack(pady=5)
+
+    # Actualizar el Combobox con los establecimientos existentes
+    update_stablishment_combobox(combobox, stablishments)
+
     # Botones
+    btn_calcular_ruta = Button(marco, text="Calcular trayectoria", command=lambda: calcular_ruta(combobox.get(), stablishments, cuadricula, javier, andreina))
+    btn_calcular_ruta.pack(fill=X, pady=5)
+
     btn_agregar_calle = Button(marco, text="Agregar calle", command=lambda: add_calle_and_update(canvas, cuadricula, javier, andreina, stablishments))
     btn_agregar_calle.pack(fill=X, pady=5)
 
@@ -199,7 +227,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
 
     # Crear canvas para el mapa
     canvas = Canvas(ventana, width=600, height=600)
-    canvas.pack(side=RIGHT, padx=80, pady=20)
+    canvas.pack(side=RIGHT, padx=80, pady=60)
 
     # Dibujar el mapa al iniciar
     dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments)
@@ -210,13 +238,14 @@ def init_app(cuadricula, javier, andreina, stablishments):
 def main():
     persons = []
     stablishments = []
-    ## Creamos a Javier y Andreina
+
+    # Creamos a Javier y Andreina
     javier = Person("Javier", 4, 6, 8, (54, 14))
     andreina = Person("Andreina", 6, 8, 10, (52, 13))
     persons.append(javier)
     persons.append(andreina)
 
-    ## Creamos los establecimientos iniciales
+    # Creamos los establecimientos iniciales
     the_darkness = Stablishment("The Darkness", (50, 14))
     la_pasion = Stablishment("La Pasion", (54, 11))
     mi_rolita = Stablishment("Mi Rolita", (50, 12))
@@ -224,7 +253,7 @@ def main():
     stablishments.append(la_pasion)
     stablishments.append(mi_rolita)
 
-    ## Creamos la cuadricula
+    # Creamos la cuadricula
     cuadricula = Cuadricula(55, 50, 10, 15)
 
     '''calcular_ruta("The Darkness", stablishments, cuadricula, javier, andreina)
