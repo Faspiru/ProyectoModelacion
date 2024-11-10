@@ -95,7 +95,8 @@ def remove_stablishment(stablishment_name, stablishments):
         print("No se ha encontrado el establecimiento a eliminar")
     else:
         stablishments.remove(establecimiento)
-        
+
+# Funciones para añadir y eliminar calles/carreras
 def add_carrera(cuadricula):
     cuadricula.add_carrera()
 
@@ -151,6 +152,28 @@ def dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments):
                 canvas.create_line(x, y, x_dest, y_dest, fill="gray")
                 canvas.create_text(x - 10, (y + y_dest) / 2, text=str(peso), fill="black", font=("Arial", 8))
 
+# Funciones para actulizar el mapa
+def update_map(canvas, cuadricula, javier, andreina, stablishments):
+    # Limpiar el canvas antes de redibujar
+    canvas.delete("all")
+    dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments)
+
+def add_carrera_and_update(canvas, cuadricula, javier, andreina, stablishments):
+    add_carrera(cuadricula)
+    update_map(canvas, cuadricula, javier, andreina, stablishments)
+
+def add_calle_and_update(canvas, cuadricula, javier, andreina, stablishments):
+    add_calle(cuadricula)
+    update_map(canvas, cuadricula, javier, andreina, stablishments)
+
+def remove_carrera_and_update(canvas, cuadricula, javier, andreina, stablishments):
+    remove_carrera(cuadricula)
+    update_map(canvas, cuadricula, javier, andreina, stablishments)
+
+def remove_calle_and_update(canvas, cuadricula, javier, andreina, stablishments):
+    remove_calle(cuadricula)
+    update_map(canvas, cuadricula, javier, andreina, stablishments)
+
 def init_app(cuadricula, javier, andreina, stablishments):
     # Configuración de la ventana de Tkinter
     ventana = Tk()
@@ -159,24 +182,24 @@ def init_app(cuadricula, javier, andreina, stablishments):
 
     # Crear un frame para los botones
     marco = Frame(ventana)
-    marco.pack(side=LEFT, padx=50, pady=10)
+    marco.pack(side=LEFT, padx=80, pady=10)
 
     # Botones
-    btn_agregar_calle = Button(marco, text="Agregar calle", command=add_calle)
+    btn_agregar_calle = Button(marco, text="Agregar calle", command=lambda: add_calle_and_update(canvas, cuadricula, javier, andreina, stablishments))
     btn_agregar_calle.pack(fill=X, pady=5)
 
-    btn_agregar_carrera = Button(marco, text="Agregar carrera", command=add_carrera)
+    btn_agregar_carrera = Button(marco, text="Agregar carrera", command=lambda: add_carrera_and_update(canvas, cuadricula, javier, andreina, stablishments))
     btn_agregar_carrera.pack(fill=X, pady=5)
 
-    btn_eliminar_calle = Button(marco, text="Eliminar calle", command=remove_calle)
+    btn_eliminar_calle = Button(marco, text="Eliminar calle", command=lambda: remove_calle_and_update(canvas, cuadricula, javier, andreina, stablishments))
     btn_eliminar_calle.pack(fill=X, pady=5)
 
-    btn_eliminar_carrera = Button(marco, text="Eliminar carrera", command=remove_carrera)
+    btn_eliminar_carrera = Button(marco, text="Eliminar carrera", command=lambda: remove_carrera_and_update(canvas, cuadricula, javier, andreina, stablishments))
     btn_eliminar_carrera.pack(fill=X, pady=5)
 
     # Crear canvas para el mapa
     canvas = Canvas(ventana, width=600, height=600)
-    canvas.pack(side=RIGHT, padx=50, pady=20)
+    canvas.pack(side=RIGHT, padx=80, pady=20)
 
     # Dibujar el mapa al iniciar
     dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments)
@@ -204,15 +227,8 @@ def main():
     ## Creamos la cuadricula
     cuadricula = Cuadricula(55, 50, 10, 15)
 
-    '''## Pruebas
-    add_calle(cuadricula)
-    add_calle(cuadricula)
-    add_carrera(cuadricula)
-    remove_calle(cuadricula)
-
-    calcular_ruta("The Darkness", stablishments, cuadricula, javier, andreina)
-    add_stablishment("Mi Gafita", (57, 12), stablishments, cuadricula)
-    print("Hola")'''
+    '''calcular_ruta("The Darkness", stablishments, cuadricula, javier, andreina)
+    add_stablishment("Mi Gafita", (57, 12), stablishments, cuadricula)'''
 
     init_app(cuadricula, javier, andreina, stablishments)
     

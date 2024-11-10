@@ -1,3 +1,5 @@
+from tkinter import messagebox
+
 class Cuadricula:
     def __init__(self, limite_norte, limite_sur, limite_este, limite_oeste):
         self.limite_norte = limite_norte
@@ -34,6 +36,7 @@ class Cuadricula:
             self.limite_norte -= 1
             print(f"Límite norte reducido a {self.limite_norte}")
         else:
+            messagebox.showwarning("Advertencia", "No se puede reducir más el límite norte")
             print("No se puede reducir más el límite norte")
 
     # Método para agregar una carrera al límite oeste
@@ -47,4 +50,5 @@ class Cuadricula:
             self.limite_oeste -= 1
             print(f"Límite oeste reducido a {self.limite_oeste}")
         else:
+            messagebox.showwarning("Advertencia", "No se puede reducir más el límite oeste")
             print("No se puede reducir más el límite oeste")
