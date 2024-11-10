@@ -120,6 +120,15 @@ def dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments):
     escala = 50  # Escala para el tamaño de la cuadrícula en píxeles
     offset_x, offset_y = 50, 50  # Desplazamiento para centrar la cuadrícula en el canvas
 
+        # Dibujar las etiquetas de las calles y carreras
+    for carrera in range(cuadricula.limite_este, cuadricula.limite_oeste + 1):
+        x = offset_x + (carrera - cuadricula.limite_este) * escala
+        canvas.create_text(x, offset_y - 20, text=f"{carrera}", fill="black", font=("Arial", 8, "bold"))
+
+    for calle in range(cuadricula.limite_sur, cuadricula.limite_norte + 1):
+        y = offset_y + (cuadricula.limite_norte - calle) * escala
+        canvas.create_text(offset_x - 40, y, text=f"{calle}", fill="black", font=("Arial", 8, "bold"))
+
     # Dibujar la cuadrícula de intersecciones y líneas de calles/carreras
     for calle in range(cuadricula.limite_sur, cuadricula.limite_norte + 1):
         for carrera in range(cuadricula.limite_este, cuadricula.limite_oeste + 1):
