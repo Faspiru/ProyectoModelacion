@@ -166,26 +166,28 @@ def dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments):
                 canvas.create_text(x - 10, (y + y_dest) / 2, text=str(peso), fill="black", font=("Arial", 8))
 
 # Funciones para actulizar el mapa
-def update_map(canvas, cuadricula, javier, andreina, stablishments):
+def update_map(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments):
     # Limpiar el canvas antes de redibujar
-    canvas.delete("all")
-    dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments)
+    canvas_andreina.delete("all")
+    canvas_javier.delete("all")
+    dibujar_mapa(canvas_andreina, cuadricula, javier, andreina, stablishments)
+    dibujar_mapa(canvas_javier, cuadricula, javier, andreina, stablishments)
 
-def add_carrera_and_update(canvas, cuadricula, javier, andreina, stablishments):
+def add_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments):
     add_carrera(cuadricula)
-    update_map(canvas, cuadricula, javier, andreina, stablishments)
+    update_map(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)
 
-def add_calle_and_update(canvas, cuadricula, javier, andreina, stablishments):
+def add_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments):
     add_calle(cuadricula)
-    update_map(canvas, cuadricula, javier, andreina, stablishments)
+    update_map(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)
 
-def remove_carrera_and_update(canvas, cuadricula, javier, andreina, stablishments):
+def remove_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments):
     remove_carrera(cuadricula)
-    update_map(canvas, cuadricula, javier, andreina, stablishments)
+    update_map(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)
 
-def remove_calle_and_update(canvas, cuadricula, javier, andreina, stablishments):
+def remove_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments):
     remove_calle(cuadricula)
-    update_map(canvas, cuadricula, javier, andreina, stablishments)
+    update_map(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)
 
 # Lista desplegable de establecimientos
 def update_stablishment_combobox(combobox, stablishments):
@@ -205,45 +207,54 @@ def init_app(cuadricula, javier, andreina, stablishments):
     # Configuración de la ventana de Tkinter
     ventana = Tk()
     ventana.title("Mapa de la Ciudad")
-    ventana.geometry("950x500")
+    ventana.geometry("1000x600")
 
-    # Crear un frame para los botones
-    marco = Frame(ventana)
-    marco.pack(side=LEFT, padx=80, pady=10)
+    # Crear Notebook para las pestañas
+    notebook = ttk.Notebook(ventana)
+    notebook.grid(sticky="nsew")
 
-    # Crear un combobox para los establecimientos
-    combobox = ttk.Combobox(marco, width=25)
+    ventana.grid_rowconfigure(0, weight=1)
+    ventana.grid_columnconfigure(0, weight=1)
+
+    # Primera pestaña - Botones
+    frame_botones = Frame(notebook)
+    notebook.add(frame_botones, text="Opciones")
+
+    # Segunda pestaña - Grafo de Andreina
+    frame_grafo_andreina = Frame(notebook)
+    notebook.add(frame_grafo_andreina, text="Grafo de Andreina")
+
+    # Tercera pestaña - Grafo de Javier
+    frame_grafo_javier = Frame(notebook)
+    notebook.add(frame_grafo_javier, text="Grafo de Javier")
+
+    # Combobox para establecimientos en la pestaña de opciones
+    combobox = ttk.Combobox(frame_botones, width=25)
     combobox.pack(pady=5)
-
-    # Actualizar el Combobox con los establecimientos existentes
     update_stablishment_combobox(combobox, stablishments)
 
-    # Botones
-    btn_calcular_ruta = Button(marco, text="Calcular trayectoria", command=lambda: calcular_ruta(combobox.get(), stablishments, cuadricula, javier, andreina))
-    btn_calcular_ruta.pack(fill=X, pady=5)
+    # Configurar las columnas del frame de botones
+    frame_botones.grid_columnconfigure((0, 1, 2, 3), weight=1)
+    combobox.grid(row=0, column=1, columnspan=4, pady=5)
+    Button(frame_botones, text="Calcular trayectoria", command=lambda: calcular_ruta(combobox.get(), stablishments, cuadricula, javier, andreina)).grid(row=0, column=0, sticky="ew", padx=100, pady=25)
+    Button(frame_botones, text="Agregar calle", command=lambda: add_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)).grid(row=1, column=0, sticky="ew", padx=100, pady=25)
+    Button(frame_botones, text="Agregar carrera", command=lambda: add_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)).grid(row=2, column=0, sticky="ew", padx=100, pady=25)
+    Button(frame_botones, text="Eliminar calle", command=lambda: remove_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)).grid(row=3, column=0, sticky="ew", padx=100, pady=25)
 
-    btn_agregar_calle = Button(marco, text="Agregar calle", command=lambda: add_calle_and_update(canvas, cuadricula, javier, andreina, stablishments))
-    btn_agregar_calle.pack(fill=X, pady=5)
 
-    btn_agregar_carrera = Button(marco, text="Agregar carrera", command=lambda: add_carrera_and_update(canvas, cuadricula, javier, andreina, stablishments))
-    btn_agregar_carrera.pack(fill=X, pady=5)
+    # Canvas para el grafo de Andreina en la segunda pestaña
+    canvas_andreina = Canvas(frame_grafo_andreina, width=600, height=600)
+    canvas_andreina.pack(side=RIGHT, padx=80, pady=60)
+    dibujar_mapa(canvas_andreina, cuadricula, javier, andreina, stablishments)  # Grafo desde la perspectiva de Andreina
 
-    btn_eliminar_calle = Button(marco, text="Eliminar calle", command=lambda: remove_calle_and_update(canvas, cuadricula, javier, andreina, stablishments))
-    btn_eliminar_calle.pack(fill=X, pady=5)
+    # Canvas para el grafo de Javier en la tercera pestaña
+    canvas_javier = Canvas(frame_grafo_javier, width=600, height=600)
+    canvas_javier.pack(side=RIGHT, padx=80, pady=60)
+    dibujar_mapa(canvas_javier, cuadricula, javier, andreina, stablishments)  # Grafo desde la perspectiva de Javier
 
-    btn_eliminar_carrera = Button(marco, text="Eliminar carrera", command=lambda: remove_carrera_and_update(canvas, cuadricula, javier, andreina, stablishments))
-    btn_eliminar_carrera.pack(fill=X, pady=5)
-
-    # Crear canvas para el mapa
-    canvas = Canvas(ventana, width=600, height=600)
-    canvas.pack(side=RIGHT, padx=80, pady=60)
-
-    # Dibujar el mapa al iniciar
-    dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments)
-
-    # Con este comando arranca la interfaz
     ventana.mainloop()
 
+# Función principal
 def main():
     persons = []
     stablishments = []
@@ -265,11 +276,6 @@ def main():
     # Creamos la cuadricula
     cuadricula = Cuadricula(55, 50, 10, 15)
 
-    '''calcular_ruta("The Darkness", stablishments, cuadricula, javier, andreina)
-    add_stablishment("Mi Gafita", (57, 12), stablishments, cuadricula)'''
-
     init_app(cuadricula, javier, andreina, stablishments)
-    
-    return 
 
 main()
