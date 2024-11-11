@@ -53,8 +53,6 @@ def calcular_ruta(stablishment_name, stablishments, cuadricula, javier, andreina
     else:
         grafo_javier = cuadricula.construir_grafo(javier)
         grafo_andreina = cuadricula.construir_grafo(andreina)
-
-        # print(grafo_javier)
         
         tiempo_javier, camino_javier = dijkstra(grafo_javier, javier.home_coords, destino)
         tiempo_andreina, camino_andreina = dijkstra(grafo_andreina, andreina.home_coords, destino)
@@ -65,17 +63,10 @@ def calcular_ruta(stablishment_name, stablishments, cuadricula, javier, andreina
             diferencia = tiempo_andreina - tiempo_javier
             messagebox.showinfo("Resultados", f"Andreina debe salir {diferencia} minutos antes que Javier para que lleguen a {establecimiento.name} al mismo tiempo\n\nTiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.\n\nCamino que debe recorrer Javier: {camino_javier}\nCamino que debe recorrer Andreína: {camino_andreina}")
             # print(f"Javier debe salir primero y esperar {diferencia} minutos para que Andreína llegue al mismo tiempo.")
-            # messagebox.showinfo("Resultados", f"Tiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.")
         else:
             diferencia = tiempo_javier - tiempo_andreina
             messagebox.showinfo("Resultados", f"Javier debe salir {diferencia} minutos antes que Andreina para que lleguen a {establecimiento.name} al mismo tiempo\n\nTiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.\n\nCamino que debe recorrer Javier: {camino_javier}\nCamino que debe recorrer Andreína: {camino_andreina}")
             # print(f"Javier debe salir {diferencia} minutos antes que Andreina para que lleguen a {establecimiento.name} al mismo tiempo\nTiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.")
-            # print(f"Andreína debe salir primero y esperar {diferencia} minutos para que Javier llegue al mismo tiempo.")
-            # messagebox.showinfo("Resultados", f"Tiempo total de Javier: {tiempo_javier} minutos\nTiempo total de Andreína: {tiempo_andreina} minutos.")
-            # print(f"Tiempo total de Javier: {tiempo_javier} minutos, Tiempo total de Andreína: {tiempo_andreina} minutos.")
-
-        #print(camino_javier)
-        #print(camino_andreina)
 
 def add_stablishment(stablishment_name, coords, stablishments, cuadricula):
     x, y = coords
