@@ -129,8 +129,9 @@ def dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments, referencia
             x2 = offset_x + (vecino[1] - cuadricula.limite_este) * escala
             y2 = offset_y + (cuadricula.limite_norte - vecino[0]) * escala
             color = "gray"
-            if ruta_optima and (nodo, vecino) in zip(ruta_optima, ruta_optima[1:]):
+            if ruta_optima and ((nodo, vecino) in zip(ruta_optima, ruta_optima[1:]) or (vecino, nodo) in zip(ruta_optima, ruta_optima[1:])):
                 color = "red" if referencia == javier else "yellow"  # Color para la ruta óptima
+
             canvas.create_line(x1, y1, x2, y2, fill=color)
             canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=str(peso), fill="black", font=("Arial", 8))
 
