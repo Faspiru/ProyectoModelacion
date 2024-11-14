@@ -239,6 +239,34 @@ def remove_stablishment_and_update(combobox, stablishment_name, stablishments):
     update_stablishment_combobox(combobox, stablishments)
     messagebox.showinfo("Resultados", "Establecimiento agregado con exito")
 
+def edit_person(person, avenueTime, dangerTime, streetTime, home_coords, cuadricula, canvases, javier, andreina, stablishments):
+
+    if avenueTime.isnumeric() == False or dangerTime.isnumeric() == False or streetTime.isnumeric() == False:
+        messagebox.showwarning("Advertencia", "Los tiempos deben ser valores numéricos")
+        return
+
+    if home_coords[0].isnumeric() == False or home_coords[1].isnumeric() == False:
+        messagebox.showwarning("Advertencia", "Las coordenadas de la casa deben ser valores numéricos")
+        return
+
+    if int(home_coords[0]) < cuadricula.limite_sur or int(home_coords[0]) > cuadricula.limite_norte or int(home_coords[1]) < cuadricula.limite_este or int(home_coords[1]) > cuadricula.limite_oeste:
+        messagebox.showwarning("Advertencia", "Las coordenadas de la casa deben estar dentro de los límites de la cuadrícula")
+        return
+
+    if int(avenueTime) <= 0 or int(dangerTime) <= 0 or int(streetTime) <= 0:
+        messagebox.showwarning("Advertencia", "Los tiempos deben ser mayores a cero")
+        return
+    
+    person.tiempo_normal = int(avenueTime)
+    person.tiempo_mala_acera = int(dangerTime)
+    person.tiempo_calle_comercial = int(streetTime)
+    person.home_coords = (int(home_coords[0]), int(home_coords[1]))
+
+    messagebox.showinfo("Resultados", "Persona editada con exito")
+
+    update_map(canvases, cuadricula, javier, andreina, stablishments, [andreina, javier])
+
+
 def init_app(cuadricula, javier, andreina, stablishments):
     # Configuración de la ventana de Tkinter
     ventana = Tk()
@@ -263,6 +291,11 @@ def init_app(cuadricula, javier, andreina, stablishments):
     # Tercera pestaña - Grafo de Javier
     frame_grafo_javier = Frame(notebook)
     notebook.add(frame_grafo_javier, text="Grafo de Javier")
+
+    #Cuarta Pestaña - Editar Personas
+    frame_editar_personas = Frame(notebook)
+    notebook.add(frame_editar_personas, text="Editar Personas")
+
 
     # Combobox para establecimientos en la pestaña de opciones
     combobox = ttk.Combobox(frame_botones, width=25)
@@ -297,6 +330,59 @@ def init_app(cuadricula, javier, andreina, stablishments):
     texto_javier.pack(side=LEFT, anchor=CENTER, fill=X ,padx=20, pady=10)
     texto_javier.config(state="disabled")
     dibujar_mapa(canvas_javier, cuadricula, javier, andreina, stablishments, javier)
+
+    #Editar Personas
+    Label(frame_editar_personas, text="Editar Personas").grid(row=0, column=0, columnspan=2, pady=10)
+    Label(frame_editar_personas, text="Javier").grid(row=1, column=0, pady=10)
+    Label(frame_editar_personas, text="Tiempo Calle Comercial").grid(row=2, column=0, pady=10)
+    Label(frame_editar_personas, text="Tiempo Mala Acera").grid(row=3, column=0, pady=10)
+    Label(frame_editar_personas, text="Tiempo Normal").grid(row=4, column=0, pady=10)
+    Label(frame_editar_personas, text="Calle donde vive").grid(row=5, column=0, pady=10)
+    Label(frame_editar_personas, text="Carrera donde vive").grid(row=6, column=0, pady=10)
+
+    entry_javier_avenue = Entry(frame_editar_personas)
+    entry_javier_avenue.grid(row=2, column=1)
+    entry_javier_avenue.insert(0, javier.tiempo_calle_comercial)
+    entry_javier_danger = Entry(frame_editar_personas)
+    entry_javier_danger.grid(row=3, column=1)
+    entry_javier_danger.insert(0, javier.tiempo_mala_acera)
+    entry_javier_street = Entry(frame_editar_personas)
+    entry_javier_street.grid(row=4, column=1)
+    entry_javier_street.insert(0, javier.tiempo_normal)
+    entry_javier_home_street = Entry(frame_editar_personas)
+    entry_javier_home_street.grid(row=5, column=1)
+    entry_javier_home_street.insert(0, javier.home_coords[0])
+    entry_javier_home_avenue = Entry(frame_editar_personas)
+    entry_javier_home_avenue.grid(row=6, column=1)
+    entry_javier_home_avenue.insert(0, javier.home_coords[1])
+
+    Label(frame_editar_personas, text="Andreina").grid(row=2, column=2, pady=10)
+    Label(frame_editar_personas, text="Tiempo Calle Comercial").grid(row=2, column=3, pady=10)
+    Label(frame_editar_personas, text="Tiempo Mala Acera").grid(row=3, column=3, pady=10)
+    Label(frame_editar_personas, text="Tiempo Normal").grid(row=4, column=3, pady=10)
+    Label(frame_editar_personas, text="Calle donde vive").grid(row=5, column=3, pady=10)
+    Label(frame_editar_personas, text="Carrera donde vive").grid(row=6, column=3, pady=10)
+
+    entry_andreina_avenue = Entry(frame_editar_personas)
+    entry_andreina_avenue.grid(row=2, column=4)
+    entry_andreina_avenue.insert(0, andreina.tiempo_calle_comercial)
+    entry_andreina_danger = Entry(frame_editar_personas)
+    entry_andreina_danger.grid(row=3, column=4)
+    entry_andreina_danger.insert(0, andreina.tiempo_mala_acera)
+    entry_andreina_street = Entry(frame_editar_personas)
+    entry_andreina_street.grid(row=4, column=4)
+    entry_andreina_street.insert(0, andreina.tiempo_normal)
+    entry_andreina_home_street = Entry(frame_editar_personas)
+    entry_andreina_home_street.grid(row=5, column=4)
+    entry_andreina_home_street.insert(0, andreina.home_coords[0])
+    entry_andreina_home_avenue = Entry(frame_editar_personas)
+    entry_andreina_home_avenue.grid(row=6, column=4)
+    entry_andreina_home_avenue.insert(0, andreina.home_coords[1])
+
+    Button(frame_editar_personas, text="Editar información Javier", command=lambda: edit_person(javier, entry_javier_avenue.get(), entry_javier_danger.get(), entry_javier_street.get(), [entry_javier_home_street.get(), entry_javier_home_avenue.get()], cuadricula, [canvas_andreina, canvas_javier], javier, andreina, stablishments)).grid(row=7, column=0, columnspan=2, pady=10)
+
+    Button(frame_editar_personas, text="Editar información Andreina", command=lambda: edit_person(andreina, entry_andreina_avenue.get(), entry_andreina_danger.get(), entry_andreina_street.get(), [entry_andreina_home_street.get(), entry_andreina_home_avenue.get()], cuadricula, [canvas_andreina, canvas_javier], javier, andreina, stablishments)).grid(row=7, column=2, columnspan=2, pady=10)
+
 
     ventana.mainloop()
 
