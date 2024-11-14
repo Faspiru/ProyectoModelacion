@@ -82,17 +82,24 @@ def calcular_ruta(stablishment_name, stablishments, cuadricula, javier, andreina
             messagebox.showinfo("Resultados", f"Javier debe salir {diferencia} minutos antes para llegar juntos.")
 
 
+from tkinter import messagebox
+
 def add_stablishment(stablishment_name, coords, stablishments, cuadricula):
-    x, y = coords
-    # Verificar si las coordenadas están dentro de los límites de la cuadrícula
-    if (cuadricula.limite_sur <= x <= cuadricula.limite_norte and
-        cuadricula.limite_este <= y <= cuadricula.limite_oeste):
-        
-        new_stablishment = Stablishment(stablishment_name, coords)
-        stablishments.append(new_stablishment)
-        print(f"Establecimiento '{stablishment_name}' agregado en {coords}")
-    else:
-        print(f"Error: Las coordenadas {coords} están fuera de los límites de la cuadrícula. No se puede agregar el establecimiento")
+
+    # Convertir las coordenadas a una tupla de enteros
+    coords = (int(coords[0]), int(coords[1]))
+
+    # Verificar si ya existe un establecimiento en las mismas coordenadas
+    for stablishment in stablishments:
+        if stablishment.coords == coords:
+            messagebox.showwarning("Advertencia", f"Ya existe el establecimiento: {stablishment.name} en las coordenadas {coords}")
+            return
+    
+    # Agregar el nuevo establecimiento si no hay conflicto de coordenadas
+    new_stablishment = Stablishment(stablishment_name, coords)
+    stablishments.append(new_stablishment)
+    messagebox.showinfo("Resultados", f"Establecimiento '{stablishment_name}' agregado en {coords} con exito")
+
 
 def remove_stablishment(stablishment_name, stablishments):
     establecimiento = None
@@ -229,10 +236,23 @@ def update_stablishment_combobox(combobox, stablishments):
     if stablishments:
         combobox.current(0)  # Seleccionar el primer establecimiento por defecto
 
-def add_stablishment_and_update(combobox, stablishment_name, coords, stablishments, cuadricula):
+def add_stablishment_and_update(canvas_andreina, canvas_javier, combobox, combobox2, stablishment_name, coords, stablishments, cuadricula, javier, andreina):
+    if not stablishment_name.strip():
+        messagebox.showwarning("Advertencia", "El nombre del establecimiento no puede estar vacío")
+        return
+
+    if coords[0].isnumeric() == False or coords[1].isnumeric() == False:
+        messagebox.showwarning("Advertencia", "Ambas cordenadas deben ser valores numéricos")
+        return
+    
+    if int(coords[0]) < cuadricula.limite_sur or int(coords[0]) > cuadricula.limite_norte or int(coords[1]) < cuadricula.limite_este or int(coords[1]) > cuadricula.limite_oeste:
+        messagebox.showwarning("Advertencia", f"Error: Las coordenadas {coords} están fuera de los límites de la cuadrícula. No se puede agregar el establecimiento")
+        return
+
     add_stablishment(stablishment_name, coords, stablishments, cuadricula)
     update_stablishment_combobox(combobox, stablishments)
-    messagebox.showinfo("Resultados", "Establecimiento agregado con exito")
+    update_stablishment_combobox(combobox2, stablishments)
+    update_map([canvas_andreina, canvas_javier], cuadricula, javier, andreina, stablishments, [andreina, javier])
 
 def remove_stablishment_and_update(combobox, stablishment_name, stablishments):
     remove_stablishment(stablishment_name, stablishments)
@@ -315,7 +335,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
 
     # Configurar las columnas del frame de botones
     frame_botones.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
-    combobox.grid(row=0, column=1, columnspan=5, pady=5)
+    combobox.grid(row=1, column=1, columnspan=5, pady=5)
     Button(frame_botones, text="Calcular trayectoria", command=lambda: calcular_ruta(combobox.get(), stablishments, cuadricula, javier, andreina, canvas_javier, canvas_andreina, texto_javier, texto_andreina)).grid(row=0, column=0, sticky="ew", padx=100, pady=25)
     Button(frame_botones, text="Agregar calle", command=lambda: add_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)).grid(row=1, column=0, sticky="ew", padx=100, pady=25)
     Button(frame_botones, text="Eliminar calle", command=lambda: remove_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)).grid(row=2, column=0, sticky="ew", padx=100, pady=25)
@@ -350,6 +370,9 @@ def init_app(cuadricula, javier, andreina, stablishments):
     Label(frame_editar_personas, text="Tiempo Normal").grid(row=4, column=0, pady=10)
     Label(frame_editar_personas, text="Calle donde vive").grid(row=5, column=0, pady=10)
     Label(frame_editar_personas, text="Carrera donde vive").grid(row=6, column=0, pady=10)
+    Label(frame_editar_personas, text="Ingrese nombre para nuevo establecimiento").grid(row=8, column=0, pady=10)
+    Label(frame_editar_personas, text="Ingrese la calle").grid(row=9, column=0, pady=10)
+    Label(frame_editar_personas, text="Ingrese la carrera").grid(row=10, column=0, pady=10)
 
     entry_javier_avenue = Entry(frame_editar_personas)
     entry_javier_avenue.grid(row=2, column=1)
@@ -366,6 +389,12 @@ def init_app(cuadricula, javier, andreina, stablishments):
     entry_javier_home_avenue = Entry(frame_editar_personas)
     entry_javier_home_avenue.grid(row=6, column=1)
     entry_javier_home_avenue.insert(0, javier.home_coords[1])
+    entry_new_stablishment = Entry(frame_editar_personas)
+    entry_new_stablishment.grid(row=8, column=1)
+    entry_new_street = Entry(frame_editar_personas)
+    entry_new_street .grid(row=9, column=1)
+    entry_new_avenue = Entry(frame_editar_personas)
+    entry_new_avenue .grid(row=10, column=1)
 
     Label(frame_editar_personas, text="Andreina").grid(row=1, column=3, pady=10, padx=30)
     Label(frame_editar_personas, text="Tiempo Calle Comercial").grid(row=2, column=3, pady=10, padx=30)
@@ -393,6 +422,8 @@ def init_app(cuadricula, javier, andreina, stablishments):
     Button(frame_editar_personas, text="Editar información Javier", command=lambda: edit_person(javier, entry_javier_avenue.get(), entry_javier_danger.get(), entry_javier_street.get(), [entry_javier_home_street.get(), entry_javier_home_avenue.get()], cuadricula, [canvas_andreina, canvas_javier], javier, andreina, stablishments)).grid(row=7, column=0, columnspan=2, pady=10)
 
     Button(frame_editar_personas, text="Editar información Andreina", command=lambda: edit_person(andreina, entry_andreina_avenue.get(), entry_andreina_danger.get(), entry_andreina_street.get(), [entry_andreina_home_street.get(), entry_andreina_home_avenue.get()], cuadricula, [canvas_andreina, canvas_javier], javier, andreina, stablishments)).grid(row=7, column=3, columnspan=2, pady=10, padx=30)
+
+    Button(frame_editar_personas, text="Agregar Establecimiento", command=lambda: add_stablishment_and_update(canvas_andreina, canvas_javier, combobox, combobox2, entry_new_stablishment.get(), (entry_new_street.get(), entry_new_avenue.get()), stablishments, cuadricula, javier, andreina)).grid(row=11, column=0, columnspan=2, pady=10)
 
 
     ventana.mainloop()
