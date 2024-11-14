@@ -136,7 +136,7 @@ def dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments, referencia
             if ruta_optima and ((nodo, vecino) in zip(ruta_optima, ruta_optima[1:]) or (vecino, nodo) in zip(ruta_optima, ruta_optima[1:])):
                 color = "red" if referencia == javier else "yellow"  # Color para la ruta óptima
 
-            canvas.create_line(x1, y1, x2, y2, fill=color)
+            canvas.create_line(x1, y1, x2, y2, fill=color, width="3")
             canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=str(peso), fill="black", font=("Arial", 10))
 
     # Dibujar las etiquetas de las calles y carreras
@@ -161,7 +161,7 @@ def dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments, referencia
             if (calle, carrera) == javier.home_coords:
                 canvas.create_text(x, y - 15, text="Javier", fill="red", font=("Arial", 10, "bold"))
             elif (calle, carrera) == andreina.home_coords:
-                canvas.create_text(x, y - 15, text="Andreina", fill="red", font=("Arial", 10, "bold"))
+                canvas.create_text(x, y - 15, text="Andreina", fill="yellow", font=("Arial", 10, "bold"))
 
             # Etiquetar establecimientos
             for stablishment in stablishments:
@@ -257,9 +257,20 @@ def edit_person(person, avenueTime, dangerTime, streetTime, home_coords, cuadric
         messagebox.showwarning("Advertencia", "Los tiempos deben ser mayores a cero")
         return
     
-    person.tiempo_normal = int(avenueTime)
+    # Validación de que la posición de la casa no esté ocupada por Javier o Andreina
+    nueva_home_coords = (int(home_coords[0]), int(home_coords[1]))
+    if person.nombre =="Andreina" and nueva_home_coords == javier.home_coords:
+        messagebox.showwarning("Advertencia", "La posición ya está siendo ocupada por Javier")
+        return
+    
+    if person.nombre =="Javier" and nueva_home_coords == andreina.home_coords:
+        messagebox.showwarning("Advertencia", "La posición ya está siendo ocupada por Andreina")
+        return
+    
+    
+    person.tiempo_normal = int(streetTime)
     person.tiempo_mala_acera = int(dangerTime)
-    person.tiempo_calle_comercial = int(streetTime)
+    person.tiempo_calle_comercial = int(avenueTime)
     person.home_coords = (int(home_coords[0]), int(home_coords[1]))
 
     messagebox.showinfo("Resultados", "Persona editada con exito")
@@ -332,8 +343,8 @@ def init_app(cuadricula, javier, andreina, stablishments):
     dibujar_mapa(canvas_javier, cuadricula, javier, andreina, stablishments, javier)
 
     #Editar Personas
-    Label(frame_editar_personas, text="Editar Personas").grid(row=0, column=0, columnspan=2, pady=10)
-    Label(frame_editar_personas, text="Javier").grid(row=1, column=0, pady=10)
+    Label(frame_editar_personas, text="Editar Personas").grid(row=0, column=0, columnspan=5, pady=10)
+    Label(frame_editar_personas, text="Javier").grid(row=1, column=0, pady=10, padx=120)
     Label(frame_editar_personas, text="Tiempo Calle Comercial").grid(row=2, column=0, pady=10)
     Label(frame_editar_personas, text="Tiempo Mala Acera").grid(row=3, column=0, pady=10)
     Label(frame_editar_personas, text="Tiempo Normal").grid(row=4, column=0, pady=10)
@@ -356,12 +367,12 @@ def init_app(cuadricula, javier, andreina, stablishments):
     entry_javier_home_avenue.grid(row=6, column=1)
     entry_javier_home_avenue.insert(0, javier.home_coords[1])
 
-    Label(frame_editar_personas, text="Andreina").grid(row=2, column=2, pady=10)
-    Label(frame_editar_personas, text="Tiempo Calle Comercial").grid(row=2, column=3, pady=10)
-    Label(frame_editar_personas, text="Tiempo Mala Acera").grid(row=3, column=3, pady=10)
-    Label(frame_editar_personas, text="Tiempo Normal").grid(row=4, column=3, pady=10)
-    Label(frame_editar_personas, text="Calle donde vive").grid(row=5, column=3, pady=10)
-    Label(frame_editar_personas, text="Carrera donde vive").grid(row=6, column=3, pady=10)
+    Label(frame_editar_personas, text="Andreina").grid(row=1, column=3, pady=10, padx=30)
+    Label(frame_editar_personas, text="Tiempo Calle Comercial").grid(row=2, column=3, pady=10, padx=30)
+    Label(frame_editar_personas, text="Tiempo Mala Acera").grid(row=3, column=3, pady=10, padx=30)
+    Label(frame_editar_personas, text="Tiempo Normal").grid(row=4, column=3, pady=10, padx=30)
+    Label(frame_editar_personas, text="Calle donde vive").grid(row=5, column=3, pady=10, padx=30)
+    Label(frame_editar_personas, text="Carrera donde vive").grid(row=6, column=3, pady=10, padx=30)
 
     entry_andreina_avenue = Entry(frame_editar_personas)
     entry_andreina_avenue.grid(row=2, column=4)
@@ -381,7 +392,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
 
     Button(frame_editar_personas, text="Editar información Javier", command=lambda: edit_person(javier, entry_javier_avenue.get(), entry_javier_danger.get(), entry_javier_street.get(), [entry_javier_home_street.get(), entry_javier_home_avenue.get()], cuadricula, [canvas_andreina, canvas_javier], javier, andreina, stablishments)).grid(row=7, column=0, columnspan=2, pady=10)
 
-    Button(frame_editar_personas, text="Editar información Andreina", command=lambda: edit_person(andreina, entry_andreina_avenue.get(), entry_andreina_danger.get(), entry_andreina_street.get(), [entry_andreina_home_street.get(), entry_andreina_home_avenue.get()], cuadricula, [canvas_andreina, canvas_javier], javier, andreina, stablishments)).grid(row=7, column=2, columnspan=2, pady=10)
+    Button(frame_editar_personas, text="Editar información Andreina", command=lambda: edit_person(andreina, entry_andreina_avenue.get(), entry_andreina_danger.get(), entry_andreina_street.get(), [entry_andreina_home_street.get(), entry_andreina_home_avenue.get()], cuadricula, [canvas_andreina, canvas_javier], javier, andreina, stablishments)).grid(row=7, column=3, columnspan=2, pady=10, padx=30)
 
 
     ventana.mainloop()
