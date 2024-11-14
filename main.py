@@ -236,7 +236,7 @@ def update_stablishment_combobox(combobox, stablishments):
     if stablishments:
         combobox.current(0)  # Seleccionar el primer establecimiento por defecto
 
-def add_stablishment_and_update(canvas_andreina, canvas_javier, combobox, combobox2, stablishment_name, coords, stablishments, cuadricula, javier, andreina):
+def add_stablishment_and_update(canvas_andreina, canvas_javier, combobox, stablishment_name, coords, stablishments, cuadricula, javier, andreina):
     if not stablishment_name.strip():
         messagebox.showwarning("Advertencia", "El nombre del establecimiento no puede estar vacío")
         return
@@ -251,7 +251,6 @@ def add_stablishment_and_update(canvas_andreina, canvas_javier, combobox, combob
 
     add_stablishment(stablishment_name, coords, stablishments, cuadricula)
     update_stablishment_combobox(combobox, stablishments)
-    update_stablishment_combobox(combobox2, stablishments)
     update_map([canvas_andreina, canvas_javier], cuadricula, javier, andreina, stablishments, [andreina, javier])
 
 def remove_stablishment_and_update(combobox, stablishment_name, stablishments):
@@ -423,7 +422,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
 
     Button(frame_editar_personas, text="Editar información Andreina", command=lambda: edit_person(andreina, entry_andreina_avenue.get(), entry_andreina_danger.get(), entry_andreina_street.get(), [entry_andreina_home_street.get(), entry_andreina_home_avenue.get()], cuadricula, [canvas_andreina, canvas_javier], javier, andreina, stablishments)).grid(row=7, column=3, columnspan=2, pady=10, padx=30)
 
-    Button(frame_editar_personas, text="Agregar Establecimiento", command=lambda: add_stablishment_and_update(canvas_andreina, canvas_javier, combobox, combobox2, entry_new_stablishment.get(), (entry_new_street.get(), entry_new_avenue.get()), stablishments, cuadricula, javier, andreina)).grid(row=11, column=0, columnspan=2, pady=10)
+    Button(frame_editar_personas, text="Agregar Establecimiento", command=lambda: add_stablishment_and_update(canvas_andreina, canvas_javier, combobox, entry_new_stablishment.get(), (entry_new_street.get(), entry_new_avenue.get()), stablishments, cuadricula, javier, andreina)).grid(row=11, column=0, columnspan=2, pady=10)
 
 
     ventana.mainloop()
