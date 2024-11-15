@@ -268,22 +268,35 @@ def remove_stablishment_and_update(canvas_andreina, canvas_javier, cuadricula, j
     remove_stablishment(stablishment_name, stablishments)
     for combobox in comboboxes:
         update_stablishment_combobox(combobox, stablishments)
-    messagebox.showinfo("Resultados", "Establecimiento agregado con exito")
+    messagebox.showinfo("Resultados", "Establecimiento eliminado con exito")
     update_map([canvas_andreina, canvas_javier], cuadricula, javier, andreina, stablishments, [andreina, javier])
 
-def edit_stablishment(stablishment, new_stablishment_name, new_location):
+def edit_stablishment(stablishment, new_stablishment_name, new_location, cuadricula, stablishments):
+    # Convertir las coordenadas a una tupla de enteros
+    coords = (int(new_location[0]), int(new_location[1]))
 
     if new_location[0].isnumeric() == False or new_location[1].isnumeric() == False:
         messagebox.showwarning("Advertencia", "Las coordenadas deben ser valores numéricos")
         return
+    
+    if int(new_location[0]) < cuadricula.limite_sur or int(new_location[0]) > cuadricula.limite_norte or int(new_location[1]) < cuadricula.limite_este or int(new_location[1]) > cuadricula.limite_oeste:
+        messagebox.showwarning("Advertencia", f"Error: Las coordenadas {coords} están fuera de los límites de la cuadrícula. No se puede editar el establecimiento")
+        return
+
+    # Verificar si ya existe un establecimiento en las mismas coordenadas
+    for establecimiento in stablishments:
+        if stablishment != establecimiento and establecimiento.coords == coords:
+            messagebox.showwarning("Advertencia", f"Ya existe el establecimiento: {establecimiento.name} en las coordenadas {coords}")
+            return
+
     stablishment.name = new_stablishment_name
     stablishment.coords = (int(new_location[0]), int(new_location[1]))
+    messagebox.showinfo("Resultados", "Establecimiento editado con exito")
 
 def edit_stablishment_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, comboboxes, stablishment, new_stablishment_name, new_location: tuple, stablishments):
-    edit_stablishment(stablishment, new_stablishment_name, new_location)
+    edit_stablishment(stablishment, new_stablishment_name, new_location, cuadricula, stablishments)
     for combobox in comboboxes:
         update_stablishment_combobox(combobox, stablishments)
-    messagebox.showinfo("Resultados", "Establecimiento editado con exito")
     update_map([canvas_andreina, canvas_javier], cuadricula, javier, andreina, stablishments, [andreina, javier])
 
 def edit_person(person, avenueTime, dangerTime, streetTime, home_coords, cuadricula, canvases, javier, andreina, stablishments):
@@ -344,23 +357,23 @@ def init_app(cuadricula, javier, andreina, stablishments):
     ventana.grid_columnconfigure(0, weight=1)
 
     # Primera pestaña - Botones
-    frame_botones = Frame(notebook)
+    frame_botones = Frame(notebook, bg="lightblue")
     notebook.add(frame_botones, text="Opciones")
 
     # Segunda pestaña - Grafo de Andreina
-    frame_grafo_andreina = Frame(notebook)
+    frame_grafo_andreina = Frame(notebook, bg="lightblue")
     notebook.add(frame_grafo_andreina, text="Grafo de Andreina")
 
     # Tercera pestaña - Grafo de Javier
-    frame_grafo_javier = Frame(notebook)
+    frame_grafo_javier = Frame(notebook, bg="lightblue")
     notebook.add(frame_grafo_javier, text="Grafo de Javier")
 
     #Cuarta Pestaña - Editar Personas
-    frame_editar_personas = Frame(notebook)
+    frame_editar_personas = Frame(notebook, bg="lightblue")
     notebook.add(frame_editar_personas, text="Editar Personas")
 
     #Quinta Pestaña - Añadir o Eliminar Establecimientos
-    frame_editar_establecimientos = Frame(notebook)
+    frame_editar_establecimientos = Frame(notebook, bg="lightblue")
     notebook.add(frame_editar_establecimientos, text="Establecimientos")
 
     # Combobox para establecimientos en la pestaña de opciones
@@ -396,7 +409,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
 
     #Segunda Pestaña
     #Cuadricula de Andreina
-    canvas_andreina = Canvas(frame_grafo_andreina, width=600, height=600)
+    canvas_andreina = Canvas(frame_grafo_andreina, width=600, height=600, bg="lightblue")
     canvas_andreina.pack(side=RIGHT, padx=10, pady=60)
     texto_andreina = Text(frame_grafo_andreina, width=100, height=10)
     leyendaAndreina = Label(frame_grafo_andreina, text="Leyenda: \nCalle Comercial: 10 minutos\nMala Acera: 8 minutos\nNormal: 6 minutos\n Ruta Óptima: Amarillo")
@@ -407,7 +420,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
 
     #Tercera Pestaña
     #Cuadricula de Javier
-    canvas_javier = Canvas(frame_grafo_javier, width=600, height=600)
+    canvas_javier = Canvas(frame_grafo_javier, width=600, height=600, bg="lightblue")
     canvas_javier.pack(side=RIGHT, padx=10, pady=60)
     leyendaJavier = Label(frame_grafo_javier, text="Leyenda: \nCalle Comercial: 8 minutos\nMala Acera: 6 minutos\nNormal: 4 minutos\n Ruta Óptima: Rojo")
     leyendaJavier.pack(side = BOTTOM,  pady=10)
@@ -488,10 +501,10 @@ def init_app(cuadricula, javier, andreina, stablishments):
     Button(frame_editar_establecimientos, text = "Añadir Establecimiento", command=lambda: add_stablishment_and_update(canvas_andreina, canvas_javier, [combobox1, combobox2, combobox3], entry_new_stablishment.get(), (entry_new_street.get(), entry_new_avenue.get()), stablishments, cuadricula, javier, andreina)).grid(row=7, column=0, padx=10, pady=5)
     
     #Editar
-    Label(frame_editar_establecimientos, text="Editar Establecimiento").grid(row=0, column=10, columnspan=5, pady=10)
-    Label(frame_editar_establecimientos, text="Seleccionar Establecimiento").grid(row=1, column=10, padx=10, pady=5)
+    Label(frame_editar_establecimientos, text="Editar Establecimiento").grid(row=0, column=11, columnspan=5, pady=10)
+    Label(frame_editar_establecimientos, text="Seleccionar Establecimiento").grid(row=1, column=11, padx=10, pady=5)
     combobox2 = ttk.Combobox(frame_editar_establecimientos, width=25)
-    combobox2.grid(row=1, column=10, columnspan=5, pady=5)    
+    combobox2.grid(row=2, column=11, columnspan=5, pady=5)    
     update_stablishment_combobox(combobox2, stablishments)
     #Esto es para saber para cual establecimiento se va a editar
     actual_stablishment = find_establecimiento(combobox2.get(), stablishments)
@@ -510,19 +523,19 @@ def init_app(cuadricula, javier, andreina, stablishments):
     combobox2.bind("<<ComboboxSelected>>", update_entries)
 
     #Añadir Establecimiento
-    Label(frame_editar_establecimientos, text="Nuevo Nombre del Establecimiento").grid(row=2, column=10, padx=10, pady=5)
+    Label(frame_editar_establecimientos, text="Nuevo Nombre del Establecimiento").grid(row=3, column=11, padx=10, pady=5)
     entry_edit_stablishment_name = Entry(frame_editar_establecimientos)
-    entry_edit_stablishment_name.grid(row=3, column=10, padx=10, pady=5)
+    entry_edit_stablishment_name.grid(row=4, column=11, padx=10, pady=5)
     entry_edit_stablishment_name.insert(0, actual_stablishment.name)
-    Label(frame_editar_establecimientos, text="Nueva Calle").grid(row=4, column=10, padx=10, pady=5)
+    Label(frame_editar_establecimientos, text="Nueva Calle").grid(row=5, column=11, padx=10, pady=5)
     entry_edit_street = Entry(frame_editar_establecimientos)
-    entry_edit_street.grid(row=5, column=10, padx=10, pady=5)
+    entry_edit_street.grid(row=6, column=11, padx=10, pady=5)
     entry_edit_street.insert(0, actual_stablishment.coords[0])
-    Label(frame_editar_establecimientos, text="Nueva Carrera").grid(row=6, column=10, padx=10, pady=5)
+    Label(frame_editar_establecimientos, text="Nueva Carrera").grid(row=7, column=11, padx=10, pady=5)
     entry_edit_avenue = Entry(frame_editar_establecimientos)
-    entry_edit_avenue.grid(row=7, column=10, padx=10, pady=5)
+    entry_edit_avenue.grid(row=8, column=11, padx=10, pady=5)
     entry_edit_avenue.insert(0, actual_stablishment.coords[1])
-    Button(frame_editar_establecimientos, text="Editar Establecimiento", command=lambda: edit_stablishment_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, [combobox1, combobox2, combobox3], actual_stablishment, entry_edit_stablishment_name.get(), (entry_edit_street.get(), entry_edit_avenue.get()), stablishments)).grid(row=8, column=10, padx=10, pady=5)
+    Button(frame_editar_establecimientos, text="Editar Establecimiento", command=lambda: edit_stablishment_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, [combobox1, combobox2, combobox3], actual_stablishment, entry_edit_stablishment_name.get(), (entry_edit_street.get(), entry_edit_avenue.get()), stablishments)).grid(row=9, column=11, padx=10, pady=5)
 
     #Eliminar Establecimiento
     Label(frame_editar_establecimientos, text="Eliminar Establecimiento").grid(row=0, column=20, columnspan=5, pady=10)
@@ -534,9 +547,6 @@ def init_app(cuadricula, javier, andreina, stablishments):
 
 
     #Ahora los comboboxes se pasan todos por parametros a las funciones para actualizarlos automaticamente
-
-
-
 
     ventana.mainloop()
 
