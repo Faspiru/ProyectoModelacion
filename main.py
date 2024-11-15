@@ -188,17 +188,19 @@ def update_map(canvases, cuadricula, javier, andreina, stablishments, personas, 
         ruta_optima = ruta_andreina if persona == andreina else ruta_javier
         dibujar_mapa(canvases[i], cuadricula, javier, andreina, stablishments, persona, ruta_optima)
 
-def add_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments):
+def add_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments, labels):
     add_carrera(cuadricula)
     update_map([canvas_andreina, canvas_javier], cuadricula, javier, andreina, stablishments, [andreina, javier])
     messagebox.showinfo("Resultados", "Carrera agregada con exito")
+    update_limits_labels(labels, cuadricula)
 
-def add_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments):
+def add_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments, labels):
     add_calle(cuadricula)
     update_map([canvas_andreina, canvas_javier], cuadricula, javier, andreina, stablishments, [andreina, javier])
     messagebox.showinfo("Resultados", "Calle agregada con exito")
+    update_limits_labels(labels, cuadricula)
 
-def remove_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments):
+def remove_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments, labels):
     # Posiciones protegidas: casas de Javier y Andreina
     casas = {javier.home_coords[1], andreina.home_coords[1]}  # Solo carreras
     # Posiciones protegidas: establecimientos
@@ -216,8 +218,9 @@ def remove_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier
     cuadricula.remove_carrera()
     update_map([canvas_andreina, canvas_javier], cuadricula, javier, andreina, stablishments, [andreina, javier])
     messagebox.showinfo("Resultados", "Carrera eliminada con exito")
+    update_limits_labels(labels, cuadricula)
 
-def remove_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments):
+def remove_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments, labels):
     # Posiciones protegidas: casas de Javier y Andreina
     casas = {javier.home_coords[0], andreina.home_coords[0]}  # Solo calles
     # Posiciones protegidas: establecimientos
@@ -235,6 +238,7 @@ def remove_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, 
     cuadricula.remove_calle()
     update_map([canvas_andreina, canvas_javier], cuadricula, javier, andreina, stablishments, [andreina, javier])
     messagebox.showinfo("Resultados", "Calle eliminada con exito")
+    update_limits_labels(labels, cuadricula)
 
 # Lista desplegable de establecimientos
 def update_stablishment_combobox(combobox, stablishments):
@@ -320,6 +324,11 @@ def edit_person(person, avenueTime, dangerTime, streetTime, home_coords, cuadric
 
     update_map(canvases, cuadricula, javier, andreina, stablishments, [andreina, javier])
 
+def update_limits_labels(labels, cuadricula):
+    labels[0].config(text=cuadricula.limite_norte)
+    labels[1].config(text=cuadricula.limite_sur)
+    labels[2].config(text=cuadricula.limite_este)
+    labels[3].config(text=cuadricula.limite_oeste)
 
 def init_app(cuadricula, javier, andreina, stablishments):
     # Configuración de la ventana de Tkinter
@@ -365,18 +374,26 @@ def init_app(cuadricula, javier, andreina, stablishments):
     frame_botones.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
     combobox1.grid(row=1, column=1, columnspan=5, pady=5)
     Button(frame_botones, text="Calcular trayectoria", command=lambda: calcular_ruta(combobox1.get(), stablishments, cuadricula, javier, andreina, canvas_javier, canvas_andreina, texto_javier, texto_andreina)).grid(row=0, column=0, sticky="ew", padx=100, pady=25)
-    Button(frame_botones, text="Agregar calle", command=lambda: add_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)).grid(row=1, column=0, sticky="ew", padx=100, pady=25)
-    Button(frame_botones, text="Eliminar calle", command=lambda: remove_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)).grid(row=2, column=0, sticky="ew", padx=100, pady=25)
-    Button(frame_botones, text="Agregar carrera", command=lambda: add_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)).grid(row=3, column=0, sticky="ew", padx=100, pady=25)
-    Button(frame_botones, text="Eliminar carrera", command=lambda: remove_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments)).grid(row=4, column=0, sticky="ew", padx=100, pady=25)
+    Button(frame_botones, text="Agregar calle", command=lambda: add_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments, [labelNorte, labelSur, labelEste, labelOeste])).grid(row=1, column=0, sticky="ew", padx=100, pady=25)
+    Button(frame_botones, text="Eliminar calle", command=lambda: remove_calle_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments, [labelNorte, labelSur, labelEste, labelOeste])).grid(row=2, column=0, sticky="ew", padx=100, pady=25)
+    Button(frame_botones, text="Agregar carrera", command=lambda: add_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments, [labelNorte, labelSur, labelEste, labelOeste])).grid(row=3, column=0, sticky="ew", padx=100, pady=25)
+    Button(frame_botones, text="Eliminar carrera", command=lambda: remove_carrera_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, stablishments, [labelNorte, labelSur, labelEste, labelOeste])).grid(row=4, column=0, sticky="ew", padx=100, pady=25)
+    
+    #Información de la cuadricula
     Label(frame_botones, text="Límite Norte: ").grid(row=5, column=0, pady=5)
-    Label(frame_botones, text=cuadricula.limite_norte).grid(row=5, column=1, pady=5)
+    labelNorte = Label(frame_botones, text=cuadricula.limite_norte)
+    labelNorte.grid(row=5, column=1, pady=5)
     Label(frame_botones, text="Límite Sur: ").grid(row=6, column=0, pady=5)
-    Label(frame_botones, text=cuadricula.limite_sur).grid(row=6, column=1, pady=5)
+    labelSur = Label(frame_botones, text=cuadricula.limite_sur)
+    labelSur.grid(row=6, column=1, pady=5)
     Label(frame_botones, text="Límite Este: ").grid(row=5, column=2, pady=5)
-    Label(frame_botones, text=cuadricula.limite_este).grid(row=5, column=3, pady=5)
+    labelEste = Label(frame_botones, text=cuadricula.limite_este)
+    labelEste.grid(row=5, column=3, pady=5)
     Label(frame_botones, text="Límite Oeste: ").grid(row=6, column=2, pady=5)
-    Label(frame_botones, text=cuadricula.limite_oeste).grid(row=6, column=3, pady=5)
+    labelOeste = Label(frame_botones, text=cuadricula.limite_oeste)
+    labelOeste.grid(row=6, column=3, pady=5)
+
+
 
     #Cuadricula de Andreina
     canvas_andreina = Canvas(frame_grafo_andreina, width=600, height=600)
