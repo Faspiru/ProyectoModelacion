@@ -394,7 +394,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
     labelOeste.grid(row=6, column=3, pady=5)
 
 
-
+    #Segunda Pestaña
     #Cuadricula de Andreina
     canvas_andreina = Canvas(frame_grafo_andreina, width=600, height=600)
     canvas_andreina.pack(side=RIGHT, padx=10, pady=60)
@@ -405,6 +405,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
     texto_andreina.config(state="disabled")
     dibujar_mapa(canvas_andreina, cuadricula, javier, andreina, stablishments, andreina)
 
+    #Tercera Pestaña
     #Cuadricula de Javier
     canvas_javier = Canvas(frame_grafo_javier, width=600, height=600)
     canvas_javier.pack(side=RIGHT, padx=10, pady=60)
@@ -415,6 +416,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
     texto_javier.config(state="disabled")
     dibujar_mapa(canvas_javier, cuadricula, javier, andreina, stablishments, javier)
 
+    #Cuarta Pestaña
     #Editar Personas
     Label(frame_editar_personas, text="Editar Personas").grid(row=0, column=0, columnspan=5, pady=10)
     Label(frame_editar_personas, text="Javier").grid(row=1, column=0, pady=10, padx=120)
@@ -424,7 +426,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
     Label(frame_editar_personas, text="Calle donde vive").grid(row=5, column=0, pady=10)
     Label(frame_editar_personas, text="Carrera donde vive").grid(row=6, column=0, pady=10)
 
-
+    #Entradas para editar información de Javier
     entry_javier_avenue = Entry(frame_editar_personas)
     entry_javier_avenue.grid(row=2, column=1)
     entry_javier_avenue.insert(0, javier.tiempo_calle_comercial)
@@ -448,6 +450,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
     Label(frame_editar_personas, text="Calle donde vive").grid(row=5, column=3, pady=10, padx=30)
     Label(frame_editar_personas, text="Carrera donde vive").grid(row=6, column=3, pady=10, padx=30)
 
+    #Entradas para editar información de Andreina
     entry_andreina_avenue = Entry(frame_editar_personas)
     entry_andreina_avenue.grid(row=2, column=4)
     entry_andreina_avenue.insert(0, andreina.tiempo_calle_comercial)
@@ -468,8 +471,9 @@ def init_app(cuadricula, javier, andreina, stablishments):
 
     Button(frame_editar_personas, text="Editar información Andreina", command=lambda: edit_person(andreina, entry_andreina_avenue.get(), entry_andreina_danger.get(), entry_andreina_street.get(), [entry_andreina_home_street.get(), entry_andreina_home_avenue.get()], cuadricula, [canvas_andreina, canvas_javier], javier, andreina, stablishments)).grid(row=7, column=3, columnspan=2, pady=10, padx=30)
 
-
+    #Quinta Pestaña
     #Añadir, Editar o Eliminar Establecimientos
+
     #Añadir
     Label(frame_editar_establecimientos, text="Añadir Establecimiento").grid(row=0, column=0, padx= 10, pady=10)
     Label(frame_editar_establecimientos, text="Nombre del Establecimiento").grid(row=1, column=0, padx=10, pady=5)
@@ -483,15 +487,16 @@ def init_app(cuadricula, javier, andreina, stablishments):
     entry_new_avenue .grid(row=6, column=0, padx= 10, pady=5)
     Button(frame_editar_establecimientos, text = "Añadir Establecimiento", command=lambda: add_stablishment_and_update(canvas_andreina, canvas_javier, [combobox1, combobox2, combobox3], entry_new_stablishment.get(), (entry_new_street.get(), entry_new_avenue.get()), stablishments, cuadricula, javier, andreina)).grid(row=7, column=0, padx=10, pady=5)
     
-
+    #Editar
     Label(frame_editar_establecimientos, text="Editar Establecimiento").grid(row=0, column=10, columnspan=5, pady=10)
     Label(frame_editar_establecimientos, text="Seleccionar Establecimiento").grid(row=1, column=10, padx=10, pady=5)
     combobox2 = ttk.Combobox(frame_editar_establecimientos, width=25)
     combobox2.grid(row=1, column=10, columnspan=5, pady=5)    
     update_stablishment_combobox(combobox2, stablishments)
-
+    #Esto es para saber para cual establecimiento se va a editar
     actual_stablishment = find_establecimiento(combobox2.get(), stablishments)
 
+    #Esto es para que las entradas sean actualizadas automaticamente con el cambio en el combobox
     def update_entries(*args):
         actual_stablishment = find_establecimiento(combobox2.get(), stablishments)
         entry_edit_stablishment_name.delete(0, END)
@@ -501,8 +506,10 @@ def init_app(cuadricula, javier, andreina, stablishments):
         entry_edit_avenue.delete(0, END)
         entry_edit_avenue.insert(0, actual_stablishment.coords[1])
 
+    #Cada vez que se cambie el valor del combobox se actualizan las entradas
     combobox2.bind("<<ComboboxSelected>>", update_entries)
 
+    #Añadir Establecimiento
     Label(frame_editar_establecimientos, text="Nuevo Nombre del Establecimiento").grid(row=2, column=10, padx=10, pady=5)
     entry_edit_stablishment_name = Entry(frame_editar_establecimientos)
     entry_edit_stablishment_name.grid(row=3, column=10, padx=10, pady=5)
@@ -517,6 +524,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
     entry_edit_avenue.insert(0, actual_stablishment.coords[1])
     Button(frame_editar_establecimientos, text="Editar Establecimiento", command=lambda: edit_stablishment_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, [combobox1, combobox2, combobox3], actual_stablishment, entry_edit_stablishment_name.get(), (entry_edit_street.get(), entry_edit_avenue.get()), stablishments)).grid(row=8, column=10, padx=10, pady=5)
 
+    #Eliminar Establecimiento
     Label(frame_editar_establecimientos, text="Eliminar Establecimiento").grid(row=0, column=20, columnspan=5, pady=10)
     Label(frame_editar_establecimientos, text="Seleccionar Establecimiento").grid(row=1, column=20, padx=10, pady=5)
     combobox3 = ttk.Combobox(frame_editar_establecimientos, width=25)
@@ -525,7 +533,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
     Button(frame_editar_establecimientos, text="Eliminar Establecimiento", command=lambda: remove_stablishment_and_update(canvas_andreina, canvas_javier, cuadricula, javier, andreina, [combobox1, combobox2, combobox3], combobox3.get(), stablishments)).grid(row=2, column=20, padx=10, pady=5)
 
 
-
+    #Ahora los comboboxes se pasan todos por parametros a las funciones para actualizarlos automaticamente
 
 
 
