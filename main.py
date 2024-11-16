@@ -1,10 +1,16 @@
 import heapq
+import PIL.Image
+import PIL.ImageTk
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from Person import Person
 from Stablishment import Stablishment
 from Cuadricula import Cuadricula
+
+img_javier_tk = None
+img_andreina_tk = None
+img_stablishment_tk = None  #Esto es para mantener las referencias de las imagenes de Javier, Andreina y los Establecimientos
 
 def dijkstra(grafo, origen, destino):
     # Inicialización de la distancia y el predecesor
@@ -131,10 +137,31 @@ def remove_carrera(cuadricula):
 def remove_calle(cuadricula):
     cuadricula.remove_calle()
 
+def load_images():
+    global img_javier_tk, img_andreina_tk, img_stablishment_tk
+    img_javier = PIL.Image.open("Javi.png")
+    img_javier = img_javier.resize((25, 25), PIL.Image.LANCZOS)
+    img_javier_tk = PIL.ImageTk.PhotoImage(img_javier)
+
+    img_andreina = PIL.Image.open("Andreina.png")
+    img_andreina = img_andreina.resize((25, 25), PIL.Image.LANCZOS)
+    img_andreina_tk = PIL.ImageTk.PhotoImage(img_andreina)
+
+    img_stablishment = PIL.Image.open("martini.png")
+    img_stablishment = img_stablishment.resize((20, 20), PIL.Image.LANCZOS)
+    img_stablishment_tk = PIL.ImageTk.PhotoImage(img_stablishment)
+
 def dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments, referencia, ruta_optima=None):
+
+    global img_javier_tk, img_andreina_tk, img_stablishment_tk
     tam_punto = 7.5
     escala = 50
     offset_x, offset_y = 50, 50
+
+    # Cargar imágenes de Javier y Andreina
+    if img_javier_tk is None or img_andreina_tk is None or img_stablishment_tk is None:
+        load_images()
+
 
     grafo = cuadricula.construir_grafo(referencia)
 
@@ -173,13 +200,16 @@ def dibujar_mapa(canvas, cuadricula, javier, andreina, stablishments, referencia
             # Etiquetas especiales
             if (calle, carrera) == javier.home_coords:
                 canvas.create_text(x, y - 15, text="Javier", fill="red", font=("Arial", 10, "bold"))
+                canvas.create_image(x, y, image=img_javier_tk)
             elif (calle, carrera) == andreina.home_coords:
                 canvas.create_text(x, y - 15, text="Andreina", fill="yellow", font=("Arial", 10, "bold"))
+                canvas.create_image(x, y, image=img_andreina_tk)
 
             # Etiquetar establecimientos
             for stablishment in stablishments:
                 if stablishment.coords == (calle, carrera):
                     canvas.create_text(x, y + 15, text=stablishment.name, fill="green", font=("Arial", 10, "bold"))
+                    canvas.create_image(x, y, image=img_stablishment_tk)
 
 #Actualizar Mapa
 def update_map(canvases, cuadricula, javier, andreina, stablishments, personas, ruta_andreina=None, ruta_javier=None):
@@ -346,7 +376,7 @@ def update_limits_labels(labels, cuadricula):
 def init_app(cuadricula, javier, andreina, stablishments):
     # Configuración de la ventana de Tkinter
     ventana = Tk()
-    ventana.title("Mapa de la Ciudad")
+    ventana.title("Reuniting SoulMates, Proyecto Final - Modelación de Sistemas de Redes - Manzanilla , Morillo , Spiotta")
     ventana.geometry("1000x600")
 
     # Crear Notebook para las pestañas
