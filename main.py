@@ -378,6 +378,7 @@ def init_app(cuadricula, javier, andreina, stablishments):
     ventana = Tk()
     ventana.title("Reuniting SoulMates, Proyecto Final - Modelación de Sistemas de Redes - Manzanilla , Morillo , Spiotta")
     ventana.geometry("1000x600")
+    ventana.iconbitmap("icon.ico")
 
     # Crear Notebook para las pestañas
     notebook = ttk.Notebook(ventana)
