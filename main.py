@@ -45,6 +45,56 @@ def dijkstra(grafo, origen, destino):
     
     return distancia[destino], camino
 
+# Algoritmo como nos lo dio el profe en la clase
+
+def dijkstra2(grafo, origen, destino):
+    # Inicializar la tabla de nodos
+    tabla = {nodo: {"dist": float('inf'), "predecesor": None, "visitado": False} for nodo in grafo}
+    tabla[origen]["dist"] = 0  # La distancia al nodo de inicio es 0
+
+    # Inicializar el nodo actual como el origen
+    nodo_actual = origen
+
+    # Mientras haya nodos por visitar
+    while nodo_actual is not None:
+        # Marcar el nodo actual como visitado
+        tabla[nodo_actual]["visitado"] = True
+
+        # Si alcanzamos el nodo destino, detenemos el algoritmo
+        if nodo_actual == destino:
+            break
+
+        # Actualizar las distancias a los vecinos del nodo actual
+        for vecino, peso in grafo[nodo_actual]:
+            if not tabla[vecino]["visitado"]:  # Solo considerar nodos no visitados
+                nueva_distancia = tabla[nodo_actual]["dist"] + peso
+                if nueva_distancia < tabla[vecino]["dist"]:
+                    tabla[vecino]["dist"] = nueva_distancia
+                    tabla[vecino]["predecesor"] = nodo_actual
+
+        # Encontrar el siguiente nodo no visitado con menor distancia conocida
+        menor_distancia = float('inf')
+        siguiente_nodo = None
+        for vecino, datos in tabla.items():
+            if not datos["visitado"] and datos["dist"] < menor_distancia:
+                menor_distancia = datos["dist"]
+                siguiente_nodo = vecino
+
+        # Actualizar el nodo actual para la siguiente iteración
+        nodo_actual = siguiente_nodo
+
+    # Reconstrucción del camino desde el destino hasta el origen
+    camino = []
+    paso = destino
+    while paso is not None:
+        camino.append(paso)
+        paso = tabla[paso]["predecesor"]  # Ir al nodo anterior
+
+    camino.reverse()  # Invertir el camino para que sea desde el origen al destino
+
+    return tabla[destino]["dist"], camino
+
+
 # Encuentra las rutas óptimas y sincroniza las salidas
 def calcular_ruta(stablishment_name, stablishments, cuadricula, javier, andreina, canvas_javier, canvas_andreina, texto_javier, texto_andreina):
     destino = None
